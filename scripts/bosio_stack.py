@@ -88,7 +88,7 @@ def deploy(ssh):
 
 def start(ssh):
     command(ssh, "pkill -TERM -f '[b]oayo_desktop.py' || true", check=False)
-    command(ssh, f"cd {REMOTE_APP} && setsid -f {PYTHON} -u boayo_desktop.py --m 16 --launcher --apps {REMOTE_APP}/apps.json > /tmp/boayo.log 2>&1 < /dev/null &")
+    command(ssh, f"cd {REMOTE_APP} && setsid -f {PYTHON} -u boayo_desktop.py --m 32 --launcher --apps {REMOTE_APP}/apps.json > /tmp/boayo.log 2>&1 < /dev/null &")
     for _ in range(30):
         time.sleep(1)
         owner = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); print((c.get_state().get('scene_owner') or '').split(':')[0]); c.close()\"", check=False)
