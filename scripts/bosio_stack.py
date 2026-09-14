@@ -29,7 +29,7 @@ WM_FILES = (
 )
 BOAYO_FILES = (
     "boayo_ui.py", "boayo_shell.py", "boayo_desktop.py", "bosio_view_simulator.py",
-    "bosio_window_gui.py", "apps.json", "boayo-desktop.service",
+    "bosio_window_gui.py", "wait_for_bosio.py", "apps.json", "boayo-desktop.service",
 )
 
 
