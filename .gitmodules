@@ -1,0 +1,9 @@
+[submodule "components/bosio_OutputCore"]
+	path = components/bosio_OutputCore
+	url = https://github.com/VARZero/bosio_OutputCore.git
+[submodule "components/bosio_SphericalWM"]
+	path = components/bosio_SphericalWM
+	url = https://github.com/VARZero/bosio_SphericalWM.git
+[submodule "components/BoAYO"]
+	path = components/BoAYO
+	url = https://github.com/VARZero/bosio_BoAYO.git
