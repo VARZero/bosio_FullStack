@@ -29,7 +29,7 @@ WM_FILES = (
 )
 BOAYO_FILES = (
     "boayo_ui.py", "boayo_shell.py", "boayo_desktop.py", "bosio_view_simulator.py",
-    "bosio_window_gui.py", "apps.json",
+    "bosio_window_gui.py", "apps.json", "boayo-desktop.service",
 )
 
 
@@ -83,12 +83,14 @@ def deploy(ssh):
     command(ssh, f"cd {REMOTE_STAGE} && chmod +x install_bosio_boot.sh && sudo -n sh install_bosio_boot.sh")
     upload_files(ssh, BOAYO, REMOTE_APP, BOAYO_FILES)
     command(ssh, f"cd {REMOTE_APP} && {PYTHON} -m py_compile *.py")
+    command(ssh, f"sudo -n install -m 0644 {REMOTE_APP}/boayo-desktop.service /etc/systemd/system/boayo-desktop.service")
+    command(ssh, "sudo -n systemctl daemon-reload && sudo -n systemctl enable boayo-desktop.service")
     print("BOSIO_STACK_DEPLOYED")
 
 
 def start(ssh):
     command(ssh, "pkill -TERM -f '[b]oayo_desktop.py' || true", check=False)
-    command(ssh, f"cd {REMOTE_APP} && setsid -f {PYTHON} -u boayo_desktop.py --m 32 --launcher --apps {REMOTE_APP}/apps.json > /tmp/boayo.log 2>&1 < /dev/null &")
+    command(ssh, "sudo -n systemctl restart boayo-desktop.service")
     for _ in range(30):
         time.sleep(1)
         owner = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); print((c.get_state().get('scene_owner') or '').split(':')[0]); c.close()\"", check=False)

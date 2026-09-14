@@ -63,6 +63,9 @@ python scripts/bosio_stack.py deploy-start
 4. BoAYO를 배포하고 런처를 scene-stream 소유자로 실행합니다.
 5. 출력 코어, 센서, AA와 장면 소유권을 검사합니다.
 
+설치된 `boayo-desktop.service`는 `bosio-window-manager.service` 뒤에 실행되며 두
+서비스 모두 부팅 자동 시작으로 활성화됩니다.
+
 Vivado에서 RTL을 다시 빌드하려면 `components/bosio_OutputCore`와
 `components/bosio_SphericalWM/hw/scripts`를 사용합니다. 기본 통합 실행은
 SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
