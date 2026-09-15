@@ -1,3 +1,6 @@
+전체적으로 에이전틱 AI를 사용했습니다.  
+Codex 썼습니다.
+
 # BOSIO Full Stack
 
 PYNQ-Z2에서 BOSIO의 세 시스템을 함께 실행하기 위한 통합 저장소입니다.
