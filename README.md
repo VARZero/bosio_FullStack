@@ -83,6 +83,10 @@ SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
 새 복제에서는 `git clone --recursive` 또는 `git submodule update --init --recursive`를
 사용해야 앱 SDK, 센서 허브 RTL, 출력 코어 RTL까지 내려받습니다.
 
+BoAYo SDK 0.2.0은 `sdk.window_state(window)`로 구면 창 크기·고정 RGB 표면 크기·
+포커스를 읽고, `sdk.poll_events()`에서 창별 `resize`/`focus` 이벤트를 제공합니다.
+앱 구현 예제는 [BoAYo SDK 빠른 시작](components/BoAYO/docs/SDK_QUICKSTART.md)에 있습니다.
+
 ## 라이선스
 
 통합 스크립트는 Apache License 2.0입니다. 각 서브모듈의 소스는 해당 저장소의
