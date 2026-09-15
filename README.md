@@ -86,6 +86,7 @@ SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
 BoAYo SDK 0.2.0은 `sdk.window_state(window)`로 구면 창 크기·고정 RGB 표면 크기·
 포커스를 읽고, `sdk.poll_events()`에서 창별 `resize`/`focus` 이벤트를 제공합니다.
 앱 구현 예제는 [BoAYo SDK 빠른 시작](components/BoAYO/docs/SDK_QUICKSTART.md)에 있습니다.
+함수·이벤트별 계약은 [BoAYo SDK API 참고서](components/BoAYO/docs/SDK_API_REFERENCE.md)에 정리했습니다.
 
 ## 라이선스
 
