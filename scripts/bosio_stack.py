@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
 import posixpath
 import time
@@ -27,12 +28,6 @@ WM_FILES = (
     "install_bosio_boot.sh", "native/bosio_compositor.cpp", "native/build_pynq.sh",
     "bitstream/bosio_output_disp.bit", "bitstream/bosio_output_disp.hwh",
 )
-BOAYO_FILES = (
-    "boayo_ui.py", "boayo_shell.py", "boayo_desktop.py", "bosio_view_simulator.py",
-    "bosio_window_gui.py", "wait_for_bosio.py", "apps.json", "boayo-desktop.service",
-)
-
-
 def command(ssh, text, check=True):
     _, stdout, stderr = ssh.exec_command(text)
     output = stdout.read().decode(errors="replace").strip()
@@ -57,10 +52,23 @@ def connect():
 
 
 def require_sources():
-    required = [WM / "sw" / name for name in WM_FILES] + [BOAYO / name for name in BOAYO_FILES]
+    required = ([WM / "sw" / name for name in WM_FILES] +
+                [BOAYO / name for name in boayo_deployer().FILES] +
+                [BOAYO / "deploy_boayo.py"])
     missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
     if missing:
         raise RuntimeError("missing submodule files; run git submodule update --init --recursive: " + ", ".join(missing))
+
+
+def boayo_deployer():
+    """Use BoAYo's own deployment list, modes, symlinks, and service setup."""
+    path = BOAYO / "deploy_boayo.py"
+    if not path.is_file():
+        raise RuntimeError("BoAYo submodule is missing; run git submodule update --init --recursive")
+    spec = importlib.util.spec_from_file_location("fullstack_boayo_deploy", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def upload_files(ssh, source, destination, names):
@@ -79,29 +87,31 @@ def upload_files(ssh, source, destination, names):
 def deploy(ssh):
     require_sources()
     upload_files(ssh, WM / "sw", REMOTE_STAGE, WM_FILES)
-    command(ssh, f"cd {REMOTE_STAGE}/native && chmod +x build_pynq.sh && sh build_pynq.sh")
     command(ssh, f"cd {REMOTE_STAGE} && chmod +x install_bosio_boot.sh && sudo -n sh install_bosio_boot.sh")
-    upload_files(ssh, BOAYO, REMOTE_APP, BOAYO_FILES)
-    command(ssh, f"cd {REMOTE_APP} && {PYTHON} -m py_compile *.py")
-    command(ssh, f"sudo -n install -m 0644 {REMOTE_APP}/boayo-desktop.service /etc/systemd/system/boayo-desktop.service")
-    command(ssh, "sudo -n systemctl daemon-reload && sudo -n systemctl enable boayo-desktop.service")
+    boayo_deployer().deploy(ssh)
     print("BOSIO_STACK_DEPLOYED")
 
 
 def start(ssh):
-    command(ssh, "pkill -TERM -f '[b]oayo_desktop.py' || true", check=False)
-    command(ssh, "sudo -n systemctl restart boayo-desktop.service")
-    for _ in range(30):
+    boayo_deployer().start(ssh)
+    for _ in range(15):
         time.sleep(1)
-        owner = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); print((c.get_state().get('scene_owner') or '').split(':')[0]); c.close()\"", check=False)
-        if owner == "boayo-desktop":
+        launcher = command(
+            ssh,
+            f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; "
+            "c=BosioWMClient('stack-start'); s=c.get_state(); "
+            "print(any(w['title']=='BoAYO Launcher' for w in s['windows'])); c.close()\"",
+            check=False,
+        )
+        if launcher == "True":
             print("BOAYO_STARTED")
             return
-    raise RuntimeError("BoAYO did not acquire scene ownership; inspect /tmp/boayo.log")
+    raise RuntimeError("BoAYo launcher window was not registered; inspect boayo-desktop.service")
 
 
 def status(ssh):
-    text = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); s=c.get_state(); o=s.get('output') or {{}}; print({{'scene_owner':s.get('scene_owner'),'compositor':s.get('compositor'),'scene_valid':o.get('scene_valid'),'error':o.get('error'),'sensor_active':o.get('sensor_active'),'aa_enabled':o.get('aa_enabled'),'aa_strength':o.get('aa_strength'),'fclk0_mhz':o.get('fclk0_mhz')}}); c.close()\"")
+    service = command(ssh, "systemctl is-active boayo-desktop.service", check=False)
+    text = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); s=c.get_state(); o=s.get('output') or {{}}; print({{'compositor':s.get('compositor'),'boayo_service':'{service}','launcher_present':any(w['title']=='BoAYO Launcher' for w in s['windows']),'app_windows':sum(w['title']!='BoAYO Launcher' for w in s['windows']),'scene_valid':o.get('scene_valid'),'error':o.get('error'),'sensor_active':o.get('sensor_active'),'aa_enabled':o.get('aa_enabled'),'aa_strength':o.get('aa_strength'),'fclk0_mhz':o.get('fclk0_mhz')}}); c.close()\"")
     print(text)
 
 

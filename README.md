@@ -6,16 +6,18 @@ PYNQ-Z2에서 BOSIO의 세 시스템을 함께 실행하기 위한 통합 저장
 | 구성 요소 | 역할 |
 |---|---|
 | `bosio_OutputCore` | 정이십면체 프레임버퍼, 자세 투영, HDMI 출력 RTL |
-| `bosio_SphericalWM` | 센서 허브, 드라이버, 구면 윈도우 데몬과 IPC |
-| `BoAYO` | 시선 중심 런처, UI와 직접 구면 장면 합성 |
+| `bosio_SphericalWM` | 센서 허브, 드라이버, 구면 윈도우 데몬·IPC·창 합성 |
+| `BoAYO` | 시선 중심 런처, 앱 SDK, 앱별 창 내용과 캡션 |
 
 ```text
-GY-521 + PYNQ 버튼
-        |
-        v
-BoAYO UI -> SphericalWM scene-stream -> OutputCore -> HDMI
-                 |                         |
-                 +-- IPC/서비스           +-- FPGA 투영/AA
+GY-521 ─ AXI4-Stream 자세 ──────────────────> OutputCore
+PYNQ 버튼 ─> SphericalWM 입력 ─> BoAYO 런처/앱 SDK
+                                    |
+                                    v
+                            SphericalWM 구면 창 합성
+                                    |
+                                    v
+                             OutputCore ─> HDMI
 ```
 
 ## 내려받기
@@ -57,11 +59,11 @@ python scripts/bosio_stack.py deploy-start
 
 `deploy-start`는 다음 작업을 순서대로 수행합니다.
 
-1. SphericalWM 소프트웨어와 BS24 bitstream을 보드 임시 디렉터리에 전송합니다.
-2. PYNQ-Z2에서 C++/NEON 합성기를 빌드합니다.
-3. systemd 데몬을 설치하고 부팅 자동 실행을 활성화합니다.
-4. BoAYO를 배포하고 런처를 scene-stream 소유자로 실행합니다.
-5. 출력 코어, 센서, AA와 장면 소유권을 검사합니다.
+1. SphericalWM 소프트웨어와 출력 bitstream을 보드에 전송합니다.
+2. PYNQ-Z2에서 C++/NEON 합성기를 빌드하고 Bosio 서비스를 설치합니다.
+3. BoAYo 런처, SDK, 앱 예제와 서비스 파일을 배포합니다.
+4. BoAYo 런처를 Bosio 창으로 실행합니다.
+5. 출력 코어·센서 상태와 런처 창 등록을 검사합니다.
 
 설치된 `boayo-desktop.service`는 `bosio-window-manager.service` 뒤에 실행되며 두
 서비스 모두 부팅 자동 시작으로 활성화됩니다.
@@ -72,9 +74,14 @@ SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
 
 ## 보드 조작
 
-- BTN0: 시선으로 포커스된 항목 선택 또는 드래그
-- BTN1: 런처를 현재 시선 위치로 재배치
+- BTN0/BTN1: 유일한 런처 패널을 현재 시선 위치에 열기
+- BTN2: 시선 위치를 클릭하거나 누른 채 창 캡션을 드래그; 패널 밖 클릭은 패널만 닫기
 - GY-521: yaw·pitch·roll을 AXI4-Stream으로 출력 코어에 전달
+
+전체 개발 소스는 세 구성 요소 저장소에 있습니다. 이 통합 저장소는 각 저장소의
+검증된 커밋을 Git submodule로 고정하고, 보드 배포·실행 스크립트를 제공합니다.
+새 복제에서는 `git clone --recursive` 또는 `git submodule update --init --recursive`를
+사용해야 앱 SDK, 센서 허브 RTL, 출력 코어 RTL까지 내려받습니다.
 
 ## 라이선스
 
