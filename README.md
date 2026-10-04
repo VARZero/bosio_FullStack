@@ -29,6 +29,9 @@ PYNQ 버튼 ─> SphericalWM 입력 ─> BoAYO 런처/앱 SDK
                              OutputCore ─> HDMI
 ```
 
+창 합성 결과는 드라이버가 DDR 장면에 기록하고, OutputCore는 필요한 셀을
+캐시 라인으로 읽습니다. BoAYo SDK나 앱이 DDR 버퍼를 직접 소유하지 않습니다.
+
 ## 내려받기
 
 ```sh
@@ -91,6 +94,22 @@ SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
 검증된 커밋을 Git submodule로 고정하고, 보드 배포·실행 스크립트를 제공합니다.
 새 복제에서는 `git clone --recursive` 또는 `git submodule update --init --recursive`를
 사용해야 앱 SDK, 센서 허브 RTL, 출력 코어 RTL까지 내려받습니다.
+
+## 현재 구성과 측정값 확인
+
+출력 코어 상태의 `ddr_cache=True`, `cache_line_bytes=64`, `cache_bytes=16384`,
+`cache_ways=2`가 기본 BS25 구성입니다. 캐시 크기는 합성 시 결정되므로
+변경하려면 비트스트림을 다시 빌드해야 합니다. `error=False`와 장면·런처 등록
+상태도 함께 확인합니다.
+
+현재 M=16 전체 구면에서 확인한 59.92 FPS는 RTL 출력 스트림의 프레임 카운터
+측정값입니다. 앱의 그림 생성·IPC·합성 처리율을 나타내지 않습니다. M=32는 전체
+구면 패킹만 확인했으며 실제 출력 성능은 아직 측정하지 않았습니다.
+[현재 검증과 이전 벤치마크](components/bosio_SphericalWM/docs/BOSIO_WM_PERFORMANCE.md)를
+참고하세요. 비트스트림을 다시 로드하면 GY-521의 자이로 영점 보정도 시작되므로
+초기 약 2.6초 동안 보드를 움직이지 않습니다.
+
+## 앱 개발 문서
 
 BoAYo SDK 0.2.0은 `sdk.window_state(window)`로 구면 창 크기·고정 RGB 표면 크기·
 포커스를 읽고, `sdk.poll_events()`에서 창별 `resize`/`focus` 이벤트를 제공합니다.
