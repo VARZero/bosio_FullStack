@@ -24,7 +24,8 @@ PYTHON = "/usr/local/share/pynq-venv/bin/python3"
 WM_FILES = (
     "bosio_wm_daemon.py", "bosio_window_manager.py", "bosio_native_compositor.py",
     "bosio_mouse_input.py", "bosio_buttons.py", "bosio_driver_v2.py",
-    "bosio_geometry_v2.py", "bosio_wm_client.py", "bosio-window-manager.service",
+    "bosio_geometry_v2.py", "bosio_wm_client.py", "bosio_input_client.py",
+    "bosio_input_demo.py", "bosio-window-manager.service",
     "install_bosio_boot.sh", "native/bosio_compositor.cpp", "native/build_pynq.sh",
     "bitstream/bosio_output_disp.bit", "bitstream/bosio_output_disp.hwh",
 )
@@ -111,7 +112,7 @@ def start(ssh):
 
 def status(ssh):
     service = command(ssh, "systemctl is-active boayo-desktop.service", check=False)
-    text = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); s=c.get_state(); o=s.get('output') or {{}}; print({{'compositor':s.get('compositor'),'boayo_service':'{service}','launcher_present':any(w['title']=='BoAYO Launcher' for w in s['windows']),'app_windows':sum(w['title']!='BoAYO Launcher' for w in s['windows']),'scene_valid':o.get('scene_valid'),'error':o.get('error'),'sensor_active':o.get('sensor_active'),'aa_enabled':o.get('aa_enabled'),'aa_strength':o.get('aa_strength'),'fclk0_mhz':o.get('fclk0_mhz')}}); c.close()\"")
+    text = command(ssh, f"cd {REMOTE_ROOT} && {PYTHON} -c \"from bosio_wm_client import BosioWMClient; c=BosioWMClient('stack-status'); s=c.get_state(); o=s.get('output') or {{}}; print({{'compositor':s.get('compositor'),'boayo_service':'{service}','launcher_present':any(w['title']=='BoAYO Launcher' for w in s['windows']),'app_windows':sum(w['title']!='BoAYO Launcher' for w in s['windows']),'scene_valid':o.get('scene_valid'),'error':o.get('error'),'sensor_active':o.get('sensor_active'),'aa_enabled':o.get('aa_enabled'),'aa_strength':o.get('aa_strength'),'fclk0_mhz':o.get('fclk0_mhz'),'ddr_cache':o.get('ddr_cache'),'cache_line_bytes':o.get('cache_line_bytes'),'cache_bytes':o.get('cache_bytes'),'cache_ways':o.get('cache_ways')}}); c.close()\"")
     print(text)
 
 

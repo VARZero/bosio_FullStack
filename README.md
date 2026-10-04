@@ -6,6 +6,12 @@ Codex 썼습니다.
 PYNQ-Z2에서 BOSIO의 세 시스템을 함께 실행하기 위한 통합 저장소입니다.
 기본 구면 타일 셀 분할도는 `M=16`입니다.
 
+기본 비트스트림은 BS25 DDR 읽기 캐시를 사용합니다. 캐시 라인은 64바이트,
+데이터 용량은 16KiB, 구성은 2-way입니다. 앱과 BoAYo SDK의 호출 방식은
+그대로이며, 장면 버퍼의 수명과 부분 갱신은 BOSIO 드라이버가 관리합니다.
+[캐시와 보드 검증 문서](components/bosio_SphericalWM/docs/BOSIO_DDR_CACHE.md)에
+설정·레지스터·측정 결과를 정리했습니다.
+
 | 구성 요소 | 역할 |
 |---|---|
 | `bosio_OutputCore` | 정이십면체 프레임버퍼, 자세 투영, HDMI 출력 RTL |
