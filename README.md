@@ -142,3 +142,10 @@ This explicitly selects M=32 and the dual bitstream. The legacy `bosio_stack.py`
 deployment commands above retain their existing M=16 behavior. See the
 [dual overlay instructions](components/bosio_SphericalWM/overlays/dual_projection/README.md)
 and [measurements](components/bosio_SphericalWM/overlays/dual_projection/INCREMENTAL_RESULTS.md).
+
+BoAYO SDK 0.3.0 is pinned to the M=32 integration: rounded app windows stay on
+the hardware path, RGB uploads contain only the changed rectangle, and unchanged
+windows reuse projected tiles. Minimize/restore at the same location preserves
+those projections. See the [BoAYO integration results](components/BoAYO/docs/M32_INCREMENTAL.md)
+for the 42 SDK tests, 14 compositor tests, and recorded live-board validation.
+The bitstream and the two IP revisions are unchanged.
