@@ -148,4 +148,7 @@ the hardware path, RGB uploads contain only the changed rectangle, and unchanged
 windows reuse projected tiles. Minimize/restore at the same location preserves
 those projections. See the [BoAYO integration results](components/BoAYO/docs/M32_INCREMENTAL.md)
 for the 42 SDK tests, 14 compositor tests, and recorded live-board validation.
-The bitstream and the two IP revisions are unchanged.
+The original M=32 dual bitstream is unchanged. The OutputCore driver includes
+the hardware directory reload fix for newly active or cleared tiles; BoAYO
+starts Dashboard at boot. See the [deployed configuration](components/bosio_SphericalWM/overlays/dual_projection/STABLE_RUNTIME.md).
+The undeployed cache/video-buffer expansion candidate is excluded.
