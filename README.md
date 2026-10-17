@@ -148,7 +148,15 @@ the hardware path, RGB uploads contain only the changed rectangle, and unchanged
 windows reuse projected tiles. Minimize/restore at the same location preserves
 those projections. See the [BoAYO integration results](components/BoAYO/docs/M32_INCREMENTAL.md)
 for the 42 SDK tests, 14 compositor tests, and recorded live-board validation.
-The original M=32 dual bitstream is unchanged. The OutputCore driver includes
-the hardware directory reload fix for newly active or cleared tiles; BoAYO
-starts Dashboard at boot. See the [deployed configuration](components/bosio_SphericalWM/overlays/dual_projection/STABLE_RUNTIME.md).
-The undeployed cache/video-buffer expansion candidate is excluded.
+The current M=32 dual bitstream adds triple-buffer HDMI scanout on HP3. Pixel
+generation may stall while HDMI repeats the last completed image at 720p60.
+M=32, both projection engines, changed-tile projection and cached-window reuse are
+preserved. The OutputCore driver retains the hardware directory reload fix.
+BoAYO starts Dashboard at boot and shows fixed 4-degree move/resize/close caption
+buttons only for the active app. App contents still scale with the window.
+See the [current scanout design, bit hashes and board results](components/bosio_SphericalWM/overlays/dual_projection/SCANOUT.md).
+
+The current release passed 47 BoAYO tests, 14 incremental compositor tests and 5
+scanout driver tests. On the board, a four-second producer stop preserved the
+visible frame and 60 Hz HDMI; 13 angle cases and 14 incremental cases passed.
+The earlier 128 KiB output-cache experiment is not part of this release.
