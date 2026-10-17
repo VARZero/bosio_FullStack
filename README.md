@@ -152,11 +152,13 @@ The current M=32 dual bitstream adds triple-buffer HDMI scanout on HP3. Pixel
 generation may stall while HDMI repeats the last completed image at 720p60.
 M=32, both projection engines, changed-tile projection and cached-window reuse are
 preserved. The OutputCore driver retains the hardware directory reload fix.
-BoAYO starts Dashboard at boot and shows fixed 4-degree move/resize/close caption
-buttons only for the active app. App contents still scale with the window.
+BoAYO starts Dashboard at boot and shows caption buttons only for the active app.
+Their rotation follows the parent window. The move handle stays at 2.88 by 10
+degrees; resize and close stay at 4 by 4 degrees. App contents still scale with
+the window.
 See the [current scanout design, bit hashes and board results](components/bosio_SphericalWM/overlays/dual_projection/SCANOUT.md).
 
-The current release passed 47 BoAYO tests, 14 incremental compositor tests and 5
+The current release passed 48 BoAYO tests, 14 incremental compositor tests and 5
 scanout driver tests. On the board, a four-second producer stop preserved the
 visible frame and 60 Hz HDMI; 13 angle cases and 14 incremental cases passed.
 The earlier 128 KiB output-cache experiment is not part of this release.
