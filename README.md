@@ -4,7 +4,8 @@ Codex 썼습니다.
 # BOSIO Full Stack
 
 PYNQ-Z2에서 BOSIO의 세 시스템을 함께 실행하기 위한 통합 저장소입니다.
-기본 구면 타일 셀 분할도는 `M=16`입니다.
+기존 기본 배포 경로는 `M=16`이며, 현재 검증된 `M=32 + 투영코어 2개` 실행 경로는
+아래 별도 절차로 선택합니다.
 
 기본 비트스트림은 BS25 DDR 읽기 캐시를 사용합니다. 캐시 라인은 64바이트,
 데이터 용량은 16KiB, 구성은 2-way입니다. 앱과 BoAYo SDK의 호출 방식은
@@ -103,8 +104,9 @@ SphericalWM에 포함된 검증 완료 bitstream을 사용합니다.
 상태도 함께 확인합니다.
 
 현재 M=16 전체 구면에서 확인한 59.92 FPS는 RTL 출력 스트림의 프레임 카운터
-측정값입니다. 앱의 그림 생성·IPC·합성 처리율을 나타내지 않습니다. M=32는 전체
-구면 패킹만 확인했으며 실제 출력 성능은 아직 측정하지 않았습니다.
+측정값입니다. 앱의 그림 생성·IPC·합성 처리율을 나타내지 않습니다. M=32 + 투영코어 2개의 별도 경로도 실제 보드에서 약 60fps 출력을 확인했습니다.
+8x8 원본 수정은 5타일만 재투영했으며, 합성 약 21ms / 출력 전달 포함 약
+40~54ms였습니다. 자세한 측정 조건은 아래 증분 투영 문서를 참조하세요.
 [현재 검증과 이전 벤치마크](components/bosio_SphericalWM/docs/BOSIO_WM_PERFORMANCE.md)를
 참고하세요. 비트스트림을 다시 로드하면 GY-521의 자이로 영점 보정도 시작되므로
 초기 약 2.6초 동안 보드를 움직이지 않습니다.
@@ -120,3 +122,23 @@ BoAYo SDK 0.2.0은 `sdk.window_state(window)`로 구면 창 크기·고정 RGB �
 
 통합 스크립트는 Apache License 2.0입니다. 각 서브모듈의 소스는 해당 저장소의
 라이선스를 따릅니다.
+
+## M=32 + dual projection (incremental)
+
+OutputCore and SphericalWM are pinned to the validated incremental integration.
+The independent [ProjectionCore](https://github.com/VARZero/bosio_ProjectionCore)
+repository is pinned inside SphericalWM at `hw/ip_repo/bosio_projection_core`.
+A recursive clone obtains all IP sources. Unchanged windows reuse projected tiles;
+no visual change generates zero projection jobs and no output commit.
+
+On PYNQ, after stopping the existing WM service and building its native fallback,
+launch using the PYNQ Python environment:
+
+```sh
+sudo -E python3 components/bosio_SphericalWM/overlays/dual_projection/run.py
+```
+
+This explicitly selects M=32 and the dual bitstream. The legacy `bosio_stack.py`
+deployment commands above retain their existing M=16 behavior. See the
+[dual overlay instructions](components/bosio_SphericalWM/overlays/dual_projection/README.md)
+and [measurements](components/bosio_SphericalWM/overlays/dual_projection/INCREMENTAL_RESULTS.md).
