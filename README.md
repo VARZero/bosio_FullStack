@@ -162,3 +162,11 @@ The current release passed 48 BoAYO tests, 14 incremental compositor tests and 5
 scanout driver tests. On the board, a four-second producer stop preserved the
 visible frame and 60 Hz HDMI; 13 angle cases and 14 incremental cases passed.
 The earlier 128 KiB output-cache experiment is not part of this release.
+
+The M=32 release now includes DTF1 whole-display 0/90/180/270-degree rotation and
+horizontal/vertical reflection, controlled by `BosioWMClient.set_display_transform`.
+It works with hardware IMU and software poses without reprojecting cached windows.
+All 16 transform combinations passed HDMI capture comparison and live IMU/API
+checks; the 14 incremental board cases also passed with no HDMI lock losses.
+The default dual bitstream, matching OutputCore source and driver are pinned
+together. See [display transform usage and release evidence](components/bosio_SphericalWM/overlays/dual_projection/DISPLAY_TRANSFORM.md).
